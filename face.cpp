@@ -21,26 +21,12 @@ using namespace cv;
 /** Function Headers */
 void detectAndDisplay( Mat frame );
 void f1Score(const char** argv);
+void readGroundTruth(string imageName);
 //double f1ScoreCalc(int truePositives, int falsePositives, int falseNegatives);
 
 /** Global variables */
 String cascade_name = "frontalface.xml";
 CascadeClassifier cascade;
-
-class groundTruth{
-
-	int x1, y1, x2, y2;
- 
-     public: 
-        groundTruth(int x1, int y1, int x2, int y2)
-        {
-            this->x1 = x1;
-            this->y1 = y1;
-            this->x2 = x2;
-            this->y2 = y2;    
-        }
-};   
-
 
 /** @function main */
 int main( int argc, const char** argv )
@@ -57,6 +43,8 @@ int main( int argc, const char** argv )
 
 	// 4. Save Result Image
 	imwrite( "detected.jpg", frame );
+	
+    readGroundTruth(argv[1]);
 
 	return 0;
 }
@@ -82,7 +70,7 @@ void detectAndDisplay( Mat frame )
 	cvtColor( frame, frame_gray, CV_BGR2GRAY );
 	equalizeHist( frame_gray, frame_gray );
 
-	// 2. Perform Viola-Jones Object Detection 
+	// 2. Perform Viola-Jones Object Detection ///////
 	cascade.detectMultiScale( frame_gray, faces, 1.1, 1, 0|CV_HAAR_SCALE_IMAGE, Size(50, 50), Size(500,500) );
 
        // 3. Print number of Faces found
@@ -92,15 +80,68 @@ void detectAndDisplay( Mat frame )
 	for( int i = 0; i < faces.size(); i++ )
 	{
 		rectangle(frame, Point(faces[i].x, faces[i].y), Point(faces[i].x + faces[i].width, faces[i].y + faces[i].height), Scalar( 0, 255, 0 ), 2);
-		printf("%d %d\n", faces[i].x, faces[i].y);
-		printf("%d %d\n", faces[i].x + faces[i].width, faces[i].y + faces[i].height);
+		//printf("%d %d\n", faces[i].x, faces[i].y);
+		//printf("%d %d\n", faces[i].x + faces[i].width, faces[i].y + faces[i].height);
 	}
 
     rectangle(frame, Point(realfacesx[0], realfacesy[0]), Point(realfacesx[1], realfacesy[1]), Scalar( 0, 0, 255 ), 2);
 	//rectangle(frame, Point(realFaces[0].x1, realFaces[0].y1), Point(realFaces[0].x2, realFaces[0].y2), Scalar( 0, 0, 255 ), 2);
 		//printf("%d %d\n", faces[i].x, faces[i].y);
-
 }
+
+
+
+void readGroundTruth(string imageName) 
+{  
+ 
+    string imgName = imageName.substr(0,(imageName.find(".")));
+    string nameof =imgName+".csv"; 
+    cout << nameof;
+    vector<vector<int>> fullpositions;
+    
+    //Open the file with the values of ground truth of the image.
+    ifstream ip(nameof);
+
+     string x1;
+     string y1;
+     string x2;
+     string y2;
+     
+     while (ip.good())
+     {
+
+     	vector<int> points;
+     	
+     	getline(ip,x1, ',');
+     	getline(ip,y1, ',');
+     	getline(ip,x2, ',');
+     	getline(ip,y2, '\n');
+
+     	std::cout << "x1 " << atoi(x1.c_str())<<'\n';
+
+        points.push_back(atoi(x1.c_str()));
+        points.push_back(atoi(y1.c_str()));
+        points.push_back(atoi(x2.c_str()));
+        points.push_back(atoi(y2.c_str()));
+
+        fullpositions.push_back(points);
+     }
+
+     ip.close();
+
+      for (int i=0; i<fullpositions.size(); ++i)
+    {
+        for (size_t j=0; j<fullpositions[i].size(); ++j)
+        {
+            cout << fullpositions[i][j] << "|"; // (separate fields by |)
+       }
+        cout << "\n";
+    }    
+}
+
+
+
+
 
 /**{
 
