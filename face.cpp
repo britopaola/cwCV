@@ -90,9 +90,14 @@ void detectAndDisplay( Mat frame, string imageName)
 
 			double iouValue= iou(faces[k].x, faces[k].y, (faces[k].x + faces[k].width),(faces[k].y+ faces[k].height),groundTruthv[i][j], groundTruthv[i][j+1], groundTruthv[i][j+2],groundTruthv[i][j+3]);
 
+			//printf("gt: %d \n", groundTruthv[i][j]);
+
+			//printf("iou: %f \n", iouValue);
+
 			if (iouValue >= value) 
 			 {				
 			 	truePositives += 1;
+			 	
 			 }								
 		}	  
 	}
@@ -102,9 +107,12 @@ void detectAndDisplay( Mat frame, string imageName)
 
 	//Calculate f1ScoreResult
 	double f1ScoreResult = f1ScoreCalc(truePositives, falsePositives, falseNegatives);
+	double tpr = (double) truePositives / (double) groundTruthv.size();
 
 	//Results
-	std::cout << faces.size() << std::endl;
+	std::cout << "Faces Detected: "<< faces.size() << std::endl;
+	std::cout << "Ground Truth: "<< groundTruthv.size() << std::endl;
+	std::cout << "TPR: "<<std::setprecision (2)<< tpr << std::endl;
 	printf("F1-score: %f \n", f1ScoreResult);
 
 }
